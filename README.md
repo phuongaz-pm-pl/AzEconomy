@@ -43,7 +43,7 @@ EcoAPI::getCurrency(string $username, callable $callback);
 ```
 Get Currencies:
 ```php
-$callback = function(BaseCurrencies $currency) : void {
+$callback = function(?BaseCurrencies $currency) : void {
     // Do something
 };
 EcoAPI::getCurrencies(string $username, callable $callback);

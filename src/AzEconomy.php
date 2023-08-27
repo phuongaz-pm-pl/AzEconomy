@@ -22,27 +22,41 @@ class AzEconomy extends PluginBase {
     private Language $language;
     private BaseStorage $storage;
 
-    public function onLoad(): void{
+    public function onLoad(): void {
         self::setInstance($this);
     }
 
-    public function onEnable(): void{
-        $this->saveResource("languages/eng.ini");
+    public function onEnable(): void {
         $this->saveDefaultConfig();
+        $this->initStorage();
+        Currencies::init();
+        PlayersPool::init();
+        $this->registerEventsAndCommands();
+        $this->initLanguage();
+    }
 
-        $connector = libasynql::create($this, $this->getConfig()->get("database"), [
+    private function initStorage(): void {
+        $databaseConfig = $this->getConfig()->get("database");
+        $connector = libasynql::create($this, $databaseConfig, [
             "sqlite" => "sqlite.sql",
         ]);
 
-        $this->storage = match ($this->getConfig()->get("database")["type"]) {
+        $this->storage = match ($databaseConfig["type"]) {
             "sqlite" => new SqliteStorage($connector),
             default => throw new Error("Invalid database type"),
         };
+    }
 
-        Currencies::init();
-        PlayersPool::init();
-        $this->getServer()->getPluginManager()->registerEvents(new EventHandler(), $this);
-        $this->getServer()->getCommandMap()->register("azeconomy", new BaseEconomyCommand($this, "azeconomy", "azeconomy.command", ["azeco"]));
+    private function registerEventsAndCommands(): void {
+        $eventHandler = new EventHandler();
+        $this->getServer()->getPluginManager()->registerEvents($eventHandler, $this);
+
+        $commandMap = $this->getServer()->getCommandMap();
+        $command = new BaseEconomyCommand($this, "azeconomy", "azeconomy.command", ["azeco"]);
+        $commandMap->register("azeconomy", $command);
+    }
+
+    private function initLanguage(): void {
         $defaultLanguage = "eng";
         $languageCode = $this->getConfig()->get("language", $defaultLanguage);
         $languagesFolder = $this->getFile() . "resources/languages/";
@@ -53,7 +67,6 @@ class AzEconomy extends PluginBase {
         }
 
         $this->language = new Language($languageCode, $languagesFolder);
-
     }
 
     public function getLanguage(): Language{
@@ -63,6 +76,10 @@ class AzEconomy extends PluginBase {
 
     public function getStorage() :BaseStorage {
         return $this->storage;
+    }
+
+    public function onDisable(): void {
+        $this->getStorage()->getConnector()->waitAll();
     }
 
 }

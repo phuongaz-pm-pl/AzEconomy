@@ -6,7 +6,6 @@ namespace phuongaz\azeconomy\listener;
 
 use phuongaz\azeconomy\AzEconomy;
 use phuongaz\azeconomy\storage\player\PlayersPool;
-use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerLoginEvent;
 use pocketmine\event\player\PlayerQuitEvent;
@@ -16,10 +15,6 @@ class EventHandler implements Listener{
 
     public function onLogin(PlayerLoginEvent $event) :void {
         PlayersPool::load($event->getPlayer());
-    }
-
-    public function onBreak(BlockBreakEvent $event) :void {
-        $currency = PlayersPool::get($event->getPlayer());
     }
 
     public function onQuit(PlayerQuitEvent $event) :void {

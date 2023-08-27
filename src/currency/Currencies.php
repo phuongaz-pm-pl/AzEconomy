@@ -29,6 +29,10 @@ final class Currencies {
         return self::$currencies;
     }
 
+    public static function hasName(string $name) :bool {
+        return isset(array_values((array)self::$currencies)[$name]);
+    }
+
     public static function init(): void{
         self::$currencies = new SplObjectStorage();
         $currenciesRaw = AzEconomy::getInstance()->getConfig()->get("currencies");

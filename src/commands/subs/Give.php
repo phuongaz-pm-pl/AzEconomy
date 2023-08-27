@@ -14,6 +14,7 @@ use phuongaz\azeconomy\currency\TransactionTypes;
 use phuongaz\azeconomy\listener\event\EconomyTransactionEvent;
 use phuongaz\azeconomy\storage\player\BaseCurrencies;
 use phuongaz\azeconomy\trait\LanguageTrait;
+use phuongaz\azeconomy\utils\Utils;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
 
@@ -35,12 +36,26 @@ class Give extends BaseSubCommand {
         $currency = $args["currency"];
         $amount = $args["amount"];
 
+        if(!Utils::isValidCurrency($currency)) {
+            $sender->sendMessage(self::__trans("currency.not.found", [
+                "currency" => $currency
+            ]));
+            return;
+        }
+
         $event = new EconomyTransactionEvent($sender->getName(), $target, $currency, $amount, "Give by " . $sender->getName(), TransactionTypes::GIVE);
         $event->setCallback(function(EconomyTransactionEvent $event) use ($sender) {
             if($event->isCancelled()) return;
 
             $storage = AzEconomy::getInstance()->getStorage();
-            $storage->awaitSelect($event->getTo(), function(BaseCurrencies $currencies) use ($event) {
+            $storage->awaitSelect($event->getTo(), function(?BaseCurrencies $currencies) use ($event, $sender) {
+                if($currencies == null) {
+                    $sender->sendMessage(self::__trans("player.not.found", [
+                        "player" => $event->getTo()
+                    ]));
+                    $event->cancel();
+                    return;
+                }
                 $currencies->addCurrency($event->getCurrency(), $event->getAmount());
             });
             $sender->sendMessage(self::__trans("give.from.success", [
@@ -49,7 +64,7 @@ class Give extends BaseSubCommand {
                 "player" => $event->getTo()
             ]));
             if(Server::getInstance()->getPlayerExact($event->getTo()) !== null) {
-                Server::getInstance()->getPlayerExact($event->getTo())->sendMessage(self::__trans("give.success", [
+                Server::getInstance()->getPlayerExact($event->getTo())->sendMessage(self::__trans("give.to.success", [
                     "amount" => $event->getAmount(),
                     "currency" => $event->getCurrency()
                 ]));

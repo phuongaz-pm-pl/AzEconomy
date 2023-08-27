@@ -9,46 +9,33 @@ use Generator;
 use phuongaz\azeconomy\storage\player\BaseCurrencies;
 use phuongaz\azeconomy\storage\player\OfflineCurrencies;
 use phuongaz\azeconomy\storage\player\PlayerCurrencies;
-use phuongaz\azeconomy\utils\Utils;
 use pocketmine\Server;
-use poggit\libasynql\DataConnector;
 use SOFe\AwaitGenerator\Await;
 
 class SqliteStorage extends BaseStorage {
-
-    public array $cache;
-
-    public function __construct(DataConnector $connector) {
-        parent::__construct($connector);
-        $this->init();
-    }
 
     public function awaitSelect(string $username, ?Closure $closure = null): Generator {
         $connector = $this->getConnector();
 
         $rows = yield from $connector->asyncSelect(self::SELECT, ["username" => $username]);
 
-        $currencyData = OfflineCurrencies::new($username);
+        $currencyData = null;
 
         if (isset($rows[0])) {
             $player = Server::getInstance()->getPlayerExact($username);
             if ($player !== null) {
-                $currencyData = new PlayerCurrencies($player);
+                $currencyData = PlayerCurrencies::new($username);
+            } else {
+                $currencyData = OfflineCurrencies::new($username);
             }
-
             $currencyData->fromString($rows[0]["currencies"]);
-
-            if ($closure !== null) {
-                $closure($currencyData);
-            }
-        } else {
-            yield $this->addCurrencies($currencyData);
         }
-        $this->cache[$username] = $currencyData;
+
+        if ($closure !== null) {
+            $closure($currencyData);
+        }
         return $currencyData;
     }
-
-
 
     public function addCurrencies(BaseCurrencies $currencies, ?Closure $closure = null): Generator {
         $connector = $this->getConnector();
@@ -110,14 +97,7 @@ class SqliteStorage extends BaseStorage {
             }
         }
 
-        return 0.0; // Default amount if currency not found
+        return 0.0;
     }
-
-
-
-
-
-
-
 
 }

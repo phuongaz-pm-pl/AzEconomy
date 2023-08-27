@@ -10,7 +10,7 @@ use pocketmine\utils\Utils;
 
 final class EcoAPI {
 
-    public function getCurrency(string $username, string $currency, Closure $closure) :void {
+    public static function getCurrency(string $username, string $currency, Closure $closure) :void {
         Utils::validateCallableSignature(function(float $amount) {}, $closure);
         $storage = AzEconomy::getInstance()->getStorage();
         $storage->awaitSelect($username, function(float $amount) use ($currency, $closure) :void {
@@ -18,25 +18,25 @@ final class EcoAPI {
         });
     }
 
-    public function getCurrencies(string $username, Closure $closure) :void {
-        Utils::validateCallableSignature(function(BaseCurrencies $currencies) {}, $closure);
+    public static function getCurrencies(string $username, Closure $closure) :void {
+        Utils::validateCallableSignature(function(?BaseCurrencies $currencies) {}, $closure);
         $storage = AzEconomy::getInstance()->getStorage();
-        $storage->awaitSelect($username, function(BaseCurrencies $currencies) use ($closure) :void {
+        $storage->awaitSelect($username, function(?BaseCurrencies $currencies) use ($closure) :void {
             $closure($currencies);
         });
     }
 
-    public function addCurrency(string $username, string $currency, float $amount, ?Closure $closure = null) :void {
+    public static function addCurrency(string $username, string $currency, float $amount, ?Closure $closure = null) :void {
         $storage = AzEconomy::getInstance()->getStorage();
-        $storage->awaitSelect($username, function(BaseCurrencies $currencies) use ($currency, $amount, $closure) :void {
-            $currencies->addCurrency($currency, $amount, $closure);
+        $storage->awaitSelect($username, function(?BaseCurrencies $currencies) use ($currency, $amount, $closure) :void {
+            $currencies?->addCurrency($currency, $amount, $closure);
         });
     }
 
-    public function removeCurrency(string $username, string $currency, float $amount, ?Closure $closure = null) :void {
+    public static function removeCurrency(string $username, string $currency, float $amount, ?Closure $closure = null) :void {
         $storage = AzEconomy::getInstance()->getStorage();
-        $storage->awaitSelect($username, function(BaseCurrencies $currencies) use ($currency, $amount, $closure) :void {
-            $currencies->removeCurrency($currency, $amount, $closure);
+        $storage->awaitSelect($username, function(?BaseCurrencies $currencies) use ($currency, $amount, $closure) :void {
+            $currencies?->removeCurrency($currency, $amount, $closure);
         });
     }
 

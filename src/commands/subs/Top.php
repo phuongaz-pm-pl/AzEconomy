@@ -10,6 +10,7 @@ use CortexPE\Commando\exception\ArgumentOrderException;
 use phuongaz\azeconomy\AzEconomy;
 use phuongaz\azeconomy\commands\Permissions;
 use phuongaz\azeconomy\trait\LanguageTrait;
+use phuongaz\azeconomy\utils\Utils;
 use pocketmine\command\CommandSender;
 
 class Top extends BaseSubCommand {
@@ -27,6 +28,13 @@ class Top extends BaseSubCommand {
         $storage = AzEconomy::getInstance()->getStorage();
 
         $currency = $args["currency"];
+
+        if(!Utils::isValidCurrency($currency)) {
+            $sender->sendMessage(self::__trans("currency.not.found", [
+                "currency" => $currency
+            ]));
+            return;
+        }
 
         $storage->topCurrencies($currency, function(array $currencies) use ($sender, $currency): void {
             $index = 1;

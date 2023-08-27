@@ -16,7 +16,9 @@ abstract class BaseStorage {
 
     public function __construct(
         private DataConnector $connector
-    ) {}
+    ) {
+        $this->init();
+    }
 
     public function getConnector(): DataConnector{
         return $this->connector;

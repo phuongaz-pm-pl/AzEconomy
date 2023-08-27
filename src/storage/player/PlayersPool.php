@@ -27,6 +27,10 @@ final class PlayersPool {
         Await::f2c(function() use ($player, $storage){
             /** @var BaseCurrencies $playerCurrencies */
             $playerCurrencies = yield $storage->awaitSelect($player->getName());
+            if($playerCurrencies === null){
+                $playerCurrencies = PlayerCurrencies::new($player->getName());
+                yield $storage->addCurrencies($playerCurrencies);
+            }
             self::$players[$player] = $playerCurrencies;
         });
     }

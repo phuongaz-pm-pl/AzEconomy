@@ -15,6 +15,7 @@ use phuongaz\azeconomy\listener\event\EconomyTransactionEvent;
 use phuongaz\azeconomy\storage\player\BaseCurrencies;
 use phuongaz\azeconomy\storage\player\PlayersPool;
 use phuongaz\azeconomy\trait\LanguageTrait;
+use phuongaz\azeconomy\utils\Utils;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 
@@ -39,6 +40,13 @@ class Pay extends BaseSubCommand {
         $currency = $args["currency"];
         $amount = $args["amount"];
 
+        if(!Utils::isValidCurrency($currency)) {
+            $sender->sendMessage(self::__trans("currency.not.found", [
+                "currency" => $currency
+            ]));
+            return;
+        }
+
         if($from === $to) {
             $sender->sendMessage(self::__trans("pay.self"));
             return;
@@ -57,7 +65,14 @@ class Pay extends BaseSubCommand {
                 ]));
                 return;
             }
-            $storage->awaitSelect($event->getTo(), function(BaseCurrencies $currencies) use ($event, $formCurrencies) {
+            $storage->awaitSelect($event->getTo(), function(?BaseCurrencies $currencies) use ($event, $formCurrencies, $sender) {
+                if($currencies == null) {
+                    $sender->sendMessage(self::__trans("player.not.found", [
+                        "player" => $event->getTo()
+                    ]));
+                    $event->cancel();
+                    return;
+                }
                 $currencies->addCurrency($event->getCurrency(), $event->getAmount(), function(BaseCurrencies $currencies) {
                     $currencies->save();
                 });

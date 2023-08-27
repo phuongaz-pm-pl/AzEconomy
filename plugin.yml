@@ -9,21 +9,21 @@ permissions:
     azeconomy.command:
         description: Allow use command
         default: true
-    azeconomy.command.money:
+    azeconomy.command.currencies:
         description: Allow use command money
         default: true
-    azeconomy.command.money.set:
+    azeconomy.command.set:
         description: Allow use command money set
-        default: op
-    azeconomy.command.money.add:
+        default: true
+    azeconomy.command.give:
         description: Allow use command money add
-        default: op
-    azeconomy.command.money.remove:
+        default: true
+    azeconomy.command.take:
         description: Allow use command money remove
-        default: op
-    azeconomy.command.money.pay:
+        default: true
+    azeconomy.command.pay:
         description: Allow use command money pay
         default: true
-    azeconomy.command.money.top:
+    azeconomy.command.top:
         description: Allow use command money top
         default: true
