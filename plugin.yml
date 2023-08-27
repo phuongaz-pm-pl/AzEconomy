@@ -1,0 +1,29 @@
+name: AzEconomy
+main: phuongaz\azeconomy\AzEconomy
+version: 1.0.0
+api: 5.0.0
+author: Phuongaz
+src-namespace-prefix: phuongaz\azeconomy
+
+permissions:
+    azeconomy.command:
+        description: Allow use command
+        default: true
+    azeconomy.command.money:
+        description: Allow use command money
+        default: true
+    azeconomy.command.money.set:
+        description: Allow use command money set
+        default: op
+    azeconomy.command.money.add:
+        description: Allow use command money add
+        default: op
+    azeconomy.command.money.remove:
+        description: Allow use command money remove
+        default: op
+    azeconomy.command.money.pay:
+        description: Allow use command money pay
+        default: true
+    azeconomy.command.money.top:
+        description: Allow use command money top
+        default: true
