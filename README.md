@@ -6,10 +6,9 @@ AzEconomy is a simple plugin designed for Pocketmine-MP servers, offering a mult
 
 - Multi-economy system
 - SQLite database
-
+- Multi-language system
 #### To do:
 
-- [ ] Multi-language system
 - [ ] FormAPI support
 - [ ] MySQL support
 
