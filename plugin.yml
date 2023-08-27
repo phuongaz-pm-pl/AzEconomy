@@ -14,13 +14,13 @@ permissions:
         default: true
     azeconomy.command.set:
         description: Allow use command money set
-        default: true
+        default: op
     azeconomy.command.give:
         description: Allow use command money add
-        default: true
+        default: op
     azeconomy.command.take:
         description: Allow use command money remove
-        default: true
+        default: op
     azeconomy.command.pay:
         description: Allow use command money pay
         default: true
