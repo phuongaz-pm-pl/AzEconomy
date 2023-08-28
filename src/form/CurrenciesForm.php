@@ -11,7 +11,7 @@ use dktapps\pmforms\MenuOption;
 use phuongaz\azeconomy\AzEconomy;
 use phuongaz\azeconomy\storage\player\BaseCurrencies;
 use phuongaz\azeconomy\storage\player\PlayersPool;
-use phuongaz\crate\utils\LanguageTrait;
+use phuongaz\azeconomy\trait\LanguageTrait;
 use pocketmine\player\Player;
 use pocketmine\Server;
 use SOFe\AwaitGenerator\Await;

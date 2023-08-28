@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace phuongaz\azeconomy\commands\subs;
 
 use CortexPE\Commando\BaseSubCommand;
-use dktapps\pmforms\MenuOption;
 use phuongaz\azeconomy\commands\Permissions;
-use phuongaz\azeconomy\form\AsyncForm;
 use phuongaz\azeconomy\storage\player\PlayersPool;
 use phuongaz\azeconomy\trait\LanguageTrait;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
-use SOFe\AwaitGenerator\Await;
 
 class Currencies extends BaseSubCommand {
     use LanguageTrait;
