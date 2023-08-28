@@ -51,13 +51,27 @@ EcoAPI::getCurrencies(string $username, callable $callback);
 
 Set Currency:
 ```php
-EcoAPI::setCurrency(string $username, string $currency, float $amount);
+$callback = function (bool $success) : void {
+    // Do something
+};
+
+EcoAPI::setCurrency(string $username, string $currency, float $amount, $callback);
 ```
 Add Currency:
 ```php
-EcoAPI::addCurrency(string $username, string $currency, float $amount);
+$callback = function (bool $success) : void {
+    // Do something
+};
+
+EcoAPI::addCurrency(string $username, string $currency, float $amount, $callback);
 ```
 Remove Currency:
 ```php
-EcoAPI::removeCurrency(string $username, string $currency, float $amount);
+$callback = function (bool $success) : void {
+    if(!$success) {
+        // not enough currency
+    }
+};
+
+EcoAPI::removeCurrency(string $username, string $currency, float $amount, $callback);
 ```

@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace phuongaz\azeconomy;
 
 use Closure;
+use phuongaz\azeconomy\currency\Currencies;
+use phuongaz\azeconomy\currency\Currency;
 use phuongaz\azeconomy\storage\player\BaseCurrencies;
 use pocketmine\utils\Utils;
 
@@ -45,6 +47,13 @@ final class EcoAPI {
         $storage->awaitSelect($username, function(?BaseCurrencies $currencies) use ($currency, $amount, $closure) :void {
             $currencies?->setCurrency($currency, $amount, $closure);
         });
+    }
+
+    /**
+     * @return Currency[]
+     */
+    public static function getAvailableCurrencies() :array {
+        return (array)Currencies::getAll();
     }
 
 }

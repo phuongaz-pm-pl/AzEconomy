@@ -24,21 +24,34 @@ abstract class BaseCurrencies {
 
     public function addCurrency(string $name, float $amount, ?Closure $closure = null): void{
         $currency = $this->currencies[$name] ?? 0;
-        if($closure !== null){
-            Utils::validateCallableSignature(function(BaseCurrencies $currencies): void{}, $closure);
-            $currency = $closure($this);
+        $afterAdd = $currency + $amount;
+        $success = false;
+        if($afterAdd >= 0) {
+            $this->currencies[$name] = $afterAdd;
+            $success = true;
         }
-        $this->currencies[$name] = $currency + $amount;
+        if($closure !== null){
+            Utils::validateCallableSignature(function(bool $success): void{}, $closure);
+            $closure($success);
+        }
     }
 
-    public function removeCurrency(string $name, float $amount, ?Closure $closure = null): void{
+    public function removeCurrency(string $name, float $amount, ?Closure $closure = null): void {
         $currency = $this->currencies[$name] ?? 0;
-        if($closure !== null){
-            Utils::validateCallableSignature(function(BaseCurrencies $currencies): void{}, $closure);
-            $currency = $closure($this);
+        $success = false;
+        if ($currency >= $amount) {
+            $afterRemove = $currency - $amount;
+            if($afterRemove >= 0) {
+                $success = true;
+                $this->currencies[$name] = $afterRemove;
+            }
         }
-        $this->currencies[$name] = $currency - $amount;
+        if($closure !== null){
+            Utils::validateCallableSignature(function(bool $success): void{}, $closure);
+            $closure($success);
+        }
     }
+
 
     public function getCurrency(string $name, ?Closure $closure = null): float{
         $currency = $this->currencies[$name] ?? 0;
@@ -50,11 +63,15 @@ abstract class BaseCurrencies {
     }
 
     public function setCurrency(string $name, float $amount, ?Closure $closure = null): void{
-        if($closure !== null){
-            Utils::validateCallableSignature(function(BaseCurrencies $currencies): void{}, $closure);
-            $closure($this);
+        $success = false;
+        if($amount >= 0) {
+            $success = true;
+            $this->currencies[$name] = $amount;
         }
-        $this->currencies[$name] = $amount;
+        if($closure !== null){
+            Utils::validateCallableSignature(function(bool $success): void{}, $closure);
+            $closure($success);
+        }
     }
 
     public function getCurrencies(?Closure $closure = null): array{
