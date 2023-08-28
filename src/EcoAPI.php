@@ -42,8 +42,8 @@ final class EcoAPI {
 
     public function setCurrency(string $username, string $currency, float $amount, ?Closure $closure = null) :void {
         $storage = AzEconomy::getInstance()->getStorage();
-        $storage->awaitSelect($username, function(BaseCurrencies $currencies) use ($currency, $amount, $closure) :void {
-            $currencies->setCurrency($currency, $amount, $closure);
+        $storage->awaitSelect($username, function(?BaseCurrencies $currencies) use ($currency, $amount, $closure) :void {
+            $currencies?->setCurrency($currency, $amount, $closure);
         });
     }
 

@@ -7,10 +7,11 @@ AzEconomy is a simple plugin designed for Pocketmine-MP servers, offering a mult
 - Multi-economy system
 - SQLite database
 - Multi-language system
+- FormAPI support
 #### To do:
 
-- [ ] FormAPI support
 - [ ] MySQL support
+- [ ] More...
 
 #### Commands
 
@@ -38,7 +39,7 @@ $callback = function(float $currency) : void {
     // Do something
 };
 
-EcoAPI::getCurrency(string $username, callable $callback);
+EcoAPI::getCurrency(string $username, string $currency, callable $callback);
 ```
 Get Currencies:
 ```php

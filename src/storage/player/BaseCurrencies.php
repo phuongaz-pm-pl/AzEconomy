@@ -73,15 +73,25 @@ abstract class BaseCurrencies {
         return $currencies;
     }
 
-    public function transferTo(BaseCurrencies $target, string $name, float $amount, string $reason = "", ?Closure $closure = null): void{
+    public function transferTo(BaseCurrencies $target, string $name, float $amount, ?Closure $closure = null, string $reason = ""): void{
         $event = new EconomyTransactionEvent($this->username, $target->getUsername(), $name, $amount, $reason, TransactionTypes::PAY);
         $event->setCallback(function(EconomyTransactionEvent $event) use ($closure, $target, $name, $amount): void{
-            if(!$event->isCancelled()){
-                $this->removeCurrency($name, $amount);
-                $target->addCurrency($name, $amount);
-                if($closure !== null){
-                    Utils::validateCallableSignature(function(BaseCurrencies $target, string $name, float $amount): void{}, $closure);
-                    $closure($target, $name, $amount);
+            if (!$event->isCancelled()) {
+                $success = false;
+
+                if ($this->getCurrency($name) >= $amount) {
+                    $this->removeCurrency($name, $amount);
+                    $target->addCurrency($name, $amount);
+                    $success = true;
+                }
+
+                if ($closure !== null) {
+                    Utils::validateCallableSignature(function(bool $success): void {}, $closure);
+                    $closure($success);
+                }
+
+                if (!$success) {
+                    $event->cancel();
                 }
             }
         });

@@ -11,7 +11,10 @@ use phuongaz\azeconomy\commands\subs\Pay;
 use phuongaz\azeconomy\commands\subs\Set;
 use phuongaz\azeconomy\commands\subs\Take;
 use phuongaz\azeconomy\commands\subs\Top;
+use phuongaz\azeconomy\form\CurrenciesForm;
 use pocketmine\command\CommandSender;
+use pocketmine\player\Player;
+use SOFe\AwaitGenerator\Await;
 
 class BaseEconomyCommand extends BaseCommand {
 
@@ -26,7 +29,11 @@ class BaseEconomyCommand extends BaseCommand {
     }
 
     public function onRun(CommandSender $sender, string $aliasUsed, array $args): void {
-        $this->sendUsage();
+        if($sender instanceof Player) {
+            Await::f2c(function() use ($sender) {
+                yield (new CurrenciesForm($sender))->send();
+            });
+        }
     }
 
     public function getPermission(): string {
