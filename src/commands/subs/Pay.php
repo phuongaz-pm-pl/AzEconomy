@@ -84,7 +84,6 @@ class Pay extends BaseSubCommand {
                 "player" => $event->getTo()
             ]));
         });
-
         $event->call();
     }
 }
