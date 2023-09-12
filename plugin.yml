@@ -1,6 +1,6 @@
 name: AzEconomy
 main: phuongaz\azeconomy\AzEconomy
-version: 1.0.0
+version: 1.0.1
 api: 5.0.0
 author: Phuongaz
 src-namespace-prefix: phuongaz\azeconomy
