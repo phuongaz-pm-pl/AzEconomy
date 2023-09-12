@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace phuongaz\azeconomy\commands\subs;
 
 use CortexPE\Commando\BaseSubCommand;
+use phuongaz\azeconomy\AzEconomy;
 use phuongaz\azeconomy\commands\Permissions;
+use phuongaz\azeconomy\EcoAPI;
+use phuongaz\azeconomy\storage\player\BaseCurrencies;
 use phuongaz\azeconomy\storage\player\PlayersPool;
 use phuongaz\azeconomy\trait\LanguageTrait;
 use pocketmine\command\CommandSender;
@@ -21,12 +24,13 @@ class Currencies extends BaseSubCommand {
     public function onRun(CommandSender $sender, string $aliasUsed, array $args): void {
         if(!$sender instanceof Player) return;
 
-        $currencies = PlayersPool::get($sender)->getCurrencies();
-        foreach($currencies as $currency => $amount) {
-            $sender->sendMessage(self::__trans("currencies.show", [
-                "currency" => $currency,
-                "amount" => $amount
-            ]));
-        }
+        EcoAPI::getCurrencies($sender->getName(), function(?BaseCurrencies $currencies) use ($sender){
+            foreach($currencies->getSortedCurrencies() as $currencyName => $amount) {
+                $sender->sendMessage(self::__trans("currencies.show", [
+                    "currency" => $currencyName,
+                    "amount" => $amount
+                ]));
+            }
+        });
     }
 }

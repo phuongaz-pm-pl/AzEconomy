@@ -11,6 +11,7 @@ use CortexPE\Commando\exception\ArgumentOrderException;
 use phuongaz\azeconomy\AzEconomy;
 use phuongaz\azeconomy\commands\Permissions;
 use phuongaz\azeconomy\currency\TransactionTypes;
+use phuongaz\azeconomy\EcoAPI;
 use phuongaz\azeconomy\listener\event\EconomyTransactionEvent;
 use phuongaz\azeconomy\storage\player\BaseCurrencies;
 use phuongaz\azeconomy\utils\Utils;
@@ -47,8 +48,7 @@ class Set extends BaseSubCommand {
         $event->setCallback(function(EconomyTransactionEvent $event) use ($sender) {
             if($event->isCancelled()) return;
 
-            $storage = AzEconomy::getInstance()->getStorage();
-            $storage->awaitSelect($event->getTo(), function(?BaseCurrencies $currencies) use ($event, $sender) {
+            EcoAPI::getCurrencies($event->getTo(), function(?BaseCurrencies $currencies) use ($sender, $event) {
                 if($currencies == null) {
                     $sender->sendMessage(self::__trans("player.not.found", [
                         "player" => $event->getTo()
@@ -56,19 +56,20 @@ class Set extends BaseSubCommand {
                     $event->cancel();
                     return;
                 }
-                $currencies->setCurrency($event->getCurrency(), $event->getAmount());
+                EcoAPI::setCurrency($event->getTo(), $event->getCurrency(), $event->getAmount(), function(bool $isSuccess) use ($event, $sender) {
+                    if($isSuccess) {
+                        $sender->sendMessage(self::__trans("set.from.success", [
+                            "player" => $event->getTo(),
+                            "currency" => $event->getCurrency(),
+                            "amount" => $event->getAmount()
+                        ]));
+                        Server::getInstance()->getPlayerExact($event->getTo())?->sendMessage(self::__trans("set.to.success", [
+                            "currency" => $event->getCurrency(),
+                            "amount" => $event->getAmount()
+                        ]));
+                    }
+                });
             });
-
-            $sender->sendMessage(self::__trans("set.from.success", [
-                "player" => $event->getTo(),
-                "currency" => $event->getCurrency(),
-                "amount" => $event->getAmount()
-            ]));
-
-            Server::getInstance()->getPlayerExact($event->getTo())?->sendMessage(self::__trans("set.to.success", [
-                "currency" => $event->getCurrency(),
-                "amount" => $event->getAmount()
-            ]));
         });
         $event->call();
     }

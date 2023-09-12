@@ -9,6 +9,7 @@ use phuongaz\azeconomy\AzEconomy;
 use phuongaz\azeconomy\currency\Currencies;
 use phuongaz\azeconomy\currency\TransactionTypes;
 use phuongaz\azeconomy\listener\event\EconomyTransactionEvent;
+use pocketmine\Server;
 use pocketmine\utils\Utils;
 use SOFe\AwaitGenerator\Await;
 
@@ -31,7 +32,7 @@ abstract class BaseCurrencies {
             $success = true;
         }
         if($closure !== null){
-            Utils::validateCallableSignature(function(bool $success): void{}, $closure);
+            Utils::validateCallableSignature(function(bool $success) {}, $closure);
             $closure($success);
         }
     }
@@ -47,7 +48,7 @@ abstract class BaseCurrencies {
             }
         }
         if($closure !== null){
-            Utils::validateCallableSignature(function(bool $success): void{}, $closure);
+            Utils::validateCallableSignature(function(bool $success) {}, $closure);
             $closure($success);
         }
     }
@@ -56,7 +57,7 @@ abstract class BaseCurrencies {
     public function getCurrency(string $name, ?Closure $closure = null): float{
         $currency = $this->currencies[$name] ?? 0;
         if($closure !== null){
-            Utils::validateCallableSignature(function(BaseCurrencies $currencies): void{}, $closure);
+            Utils::validateCallableSignature(function(BaseCurrencies $currencies) {}, $closure);
             $currency = $closure($this);
         }
         return $currency;
@@ -69,7 +70,7 @@ abstract class BaseCurrencies {
             $this->currencies[$name] = $amount;
         }
         if($closure !== null){
-            Utils::validateCallableSignature(function(bool $success): void{}, $closure);
+            Utils::validateCallableSignature(function(bool $success) {}, $closure);
             $closure($success);
         }
     }
@@ -78,7 +79,7 @@ abstract class BaseCurrencies {
 
         $currencies = $this->currencies;
         if($closure !== null){
-            Utils::validateCallableSignature(function(array $currencies): void{}, $closure);
+            Utils::validateCallableSignature(function(array $currencies) {}, $closure);
             $currencies = $closure($currencies);
         }
         return $currencies;
@@ -92,7 +93,7 @@ abstract class BaseCurrencies {
 
     public function transferTo(BaseCurrencies $target, string $name, float $amount, ?Closure $closure = null, string $reason = ""): void{
         $event = new EconomyTransactionEvent($this->username, $target->getUsername(), $name, $amount, $reason, TransactionTypes::PAY);
-        $event->setCallback(function(EconomyTransactionEvent $event) use ($closure, $target, $name, $amount): void{
+        $event->setCallback(function(EconomyTransactionEvent $event) use ($closure, $target, $name, $amount) {
             if (!$event->isCancelled()) {
                 $success = false;
 
@@ -118,7 +119,8 @@ abstract class BaseCurrencies {
     public function save(): void{
         Await::f2c(function () {
             $storage = AzEconomy::getInstance()->getStorage();
-            yield $storage->saveCurrencies($this);
+            yield $storage->saveCurrencies($this, function() {
+            });
         });
     }
 
@@ -148,8 +150,8 @@ abstract class BaseCurrencies {
      *
      * @return BaseCurrencies
      */
-    public static function new(string $username, array $currencies = []): BaseCurrencies{
-        $playerCurrencies = new static($username);
+    public static function new(string $username, string $currencyClass, array $currencies = []): BaseCurrencies{
+        $playerCurrencies = new $currencyClass($username);
         if(count($currencies) === 0){
             $currencies = Currencies::getAll();
         }

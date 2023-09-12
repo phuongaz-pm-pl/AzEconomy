@@ -8,9 +8,9 @@ use CortexPE\Commando\args\FloatArgument;
 use CortexPE\Commando\args\RawStringArgument;
 use CortexPE\Commando\BaseSubCommand;
 use CortexPE\Commando\exception\ArgumentOrderException;
-use phuongaz\azeconomy\AzEconomy;
 use phuongaz\azeconomy\commands\Permissions;
 use phuongaz\azeconomy\currency\TransactionTypes;
+use phuongaz\azeconomy\EcoAPI;
 use phuongaz\azeconomy\listener\event\EconomyTransactionEvent;
 use phuongaz\azeconomy\storage\player\BaseCurrencies;
 use phuongaz\azeconomy\trait\LanguageTrait;
@@ -47,8 +47,7 @@ class Give extends BaseSubCommand {
         $event->setCallback(function(EconomyTransactionEvent $event) use ($sender) {
             if($event->isCancelled()) return;
 
-            $storage = AzEconomy::getInstance()->getStorage();
-            $storage->awaitSelect($event->getTo(), function(?BaseCurrencies $currencies) use ($event, $sender) {
+            EcoAPI::getCurrencies($event->getTo(), function(?BaseCurrencies $currencies) use ($event, $sender) {
                 if($currencies == null) {
                     $sender->sendMessage(self::__trans("player.not.found", [
                         "player" => $event->getTo()
@@ -57,6 +56,7 @@ class Give extends BaseSubCommand {
                     return;
                 }
                 $currencies->addCurrency($event->getCurrency(), $event->getAmount());
+                $currencies->save();
             });
             $sender->sendMessage(self::__trans("give.from.success", [
                 "amount" => $event->getAmount(),

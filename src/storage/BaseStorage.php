@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace phuongaz\azeconomy\storage;
 
+use Closure;
+use Generator;
 use poggit\libasynql\DataConnector;
+use SOFe\AwaitGenerator\Await;
 
 abstract class BaseStorage {
 
@@ -17,15 +20,11 @@ abstract class BaseStorage {
     public function __construct(
         private DataConnector $connector
     ) {
-        $this->init();
+        Await::f2c(fn() => yield $this->connector->asyncGeneric(self::INIT));
     }
 
     public function getConnector(): DataConnector{
         return $this->connector;
-    }
-
-    public function init(): void{
-        $this->connector->executeGeneric(self::INIT);
     }
 
 }

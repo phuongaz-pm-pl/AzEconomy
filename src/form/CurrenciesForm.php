@@ -10,7 +10,6 @@ use dktapps\pmforms\element\Label;
 use dktapps\pmforms\MenuOption;
 use phuongaz\azeconomy\AzEconomy;
 use phuongaz\azeconomy\storage\player\BaseCurrencies;
-use phuongaz\azeconomy\storage\player\PlayersPool;
 use phuongaz\azeconomy\trait\LanguageTrait;
 use pocketmine\player\Player;
 use pocketmine\Server;
@@ -24,20 +23,22 @@ class CurrenciesForm {
     public function __construct(
         private Player $player
     ) {
-        $this->currencies = PlayersPool::get($player);
+        Await::f2c(function() use ($player) {
+            $storage = AzEconomy::getInstance()->getStorage();
+            $this->currencies = yield from $storage->awaitSelect($player->getName());
+        });
     }
 
     public function getPlayer() :Player {
         return $this->player;
     }
 
-    public function getPlayerCurrencies() :BaseCurrencies {
-        return $this->currencies;
-    }
-
     public function send() :\Generator {
+        $storage = AzEconomy::getInstance()->getStorage();
         $options = [];
-        $currencies = $this->getPlayerCurrencies()->getCurrencies();
+        /** @var BaseCurrencies $currencies*/
+        $baseCurrencies = yield from $storage->awaitSelect($this->getPlayer()->getName());
+        $currencies = $baseCurrencies->getSortedCurrencies();
         foreach($currencies as $name => $currency) {
             $options[] = new MenuOption($name . ": " . $currency);
         }
@@ -84,6 +85,7 @@ class CurrenciesForm {
     }
 
     public function payForm(string $currency, string $text = "") :\Generator {
+        $storage = AzEconomy::getInstance()->getStorage();
         $labelContent = self::__trans("currency.form.pay.label", ["currency" => $currency, "amount" => $this->currencies->getCurrency($currency)]);
         if($text !== "") {
             $labelContent .= "\n$text";
@@ -111,8 +113,8 @@ class CurrenciesForm {
         if($username === $this->getPlayer()->getName()) {
             return yield $this->payForm($currency, self::__trans("currency.form.pay.error.self"));
         }
-        $targetCurrencies = PlayersPool::get(Server::getInstance()->getPlayerExact($username));
-        $this->getPlayerCurrencies()->transferTo($targetCurrencies, $currency, $amount, function(bool $success) use ($username, $currency, $amount, $targetCurrencies) {
+        $targetCurrencies = yield from $storage->awaitSelect($username);
+        $this->currencies->transferTo($targetCurrencies, $currency, $amount, function(bool $success) use ($username, $currency, $amount, $targetCurrencies) {
             if($success) {
                 yield $this->payForm($currency, self::__trans("currency.form.pay.success", ["player" => $username, "amount" => $amount, "currency" => $currency]));
                 $targetCurrencies->getPlayer()->sendMessage(self::__trans("currency.to.pay.success", ["player" => $this->getPlayer()->getName(), "amount" => $amount, "currency" => $currency]));

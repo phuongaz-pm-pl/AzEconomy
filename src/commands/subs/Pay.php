@@ -11,9 +11,9 @@ use CortexPE\Commando\exception\ArgumentOrderException;
 use phuongaz\azeconomy\AzEconomy;
 use phuongaz\azeconomy\commands\Permissions;
 use phuongaz\azeconomy\currency\TransactionTypes;
+use phuongaz\azeconomy\EcoAPI;
 use phuongaz\azeconomy\listener\event\EconomyTransactionEvent;
 use phuongaz\azeconomy\storage\player\BaseCurrencies;
-use phuongaz\azeconomy\storage\player\PlayersPool;
 use phuongaz\azeconomy\trait\LanguageTrait;
 use phuongaz\azeconomy\utils\Utils;
 use pocketmine\command\CommandSender;
@@ -56,16 +56,7 @@ class Pay extends BaseSubCommand {
         $event->setCallback(function(EconomyTransactionEvent $event) use ($sender) {
             if($event->isCancelled()) return;
 
-            $storage = AzEconomy::getInstance()->getStorage();
-
-            $formCurrencies = PlayersPool::get($sender);
-            if($formCurrencies->getCurrency($event->getCurrency()) < $event->getAmount()) {
-                $sender->sendMessage(self::__trans("not.enough.currency", [
-                    "currency" => $event->getCurrency()
-                ]));
-                return;
-            }
-            $storage->awaitSelect($event->getTo(), function(?BaseCurrencies $currencies) use ($event, $formCurrencies, $sender) {
+            EcoAPI::getCurrencies($event->getTo(), function(?BaseCurrencies $currencies) use ($event, $sender) {
                 if($currencies == null) {
                     $sender->sendMessage(self::__trans("player.not.found", [
                         "player" => $event->getTo()
@@ -73,10 +64,17 @@ class Pay extends BaseSubCommand {
                     $event->cancel();
                     return;
                 }
-                $currencies->addCurrency($event->getCurrency(), $event->getAmount(), function(BaseCurrencies $currencies) {
-                    $currencies->save();
+                EcoAPI::removeCurrency($event->getFrom(), $event->getCurrency(), $event->getAmount(), function(bool $isSuccess) use ($sender, $event, $currencies) {
+                    if($isSuccess) {
+                        $currencies->addCurrency($event->getCurrency(), $event->getAmount(), function(BaseCurrencies $currencies) {
+                            $currencies->save();
+                        });
+                        return;
+                    }
+                    $sender->sendMessage(self::__trans("not.enough.currency", [
+                        "currency" => $event->getCurrency()
+                    ]));
                 });
-                $formCurrencies->removeCurrency($event->getCurrency(), $event->getAmount());
             });
             $sender->sendMessage(self::__trans("pay.success", [
                 "amount" => $event->getAmount(),

@@ -24,23 +24,24 @@ class SqliteStorage extends BaseStorage {
         if (isset($rows[0])) {
             $player = Server::getInstance()->getPlayerExact($username);
             if ($player !== null) {
-                $currencyData = PlayerCurrencies::new($username);
+                $currencyData = BaseCurrencies::new($username, PlayerCurrencies::class);
             } else {
-                $currencyData = OfflineCurrencies::new($username);
+                $currencyData = BaseCurrencies::new($username, OfflineCurrencies::class);
             }
             $currencyData->fromString($rows[0]["currencies"]);
         }
 
-        if ($closure !== null) {
+        if (!is_null($closure)) {
             $closure($currencyData);
         }
+
         return $currencyData;
     }
 
-    public function addCurrencies(BaseCurrencies $currencies, ?Closure $closure = null): Generator {
+    public function registerCurrencies(BaseCurrencies $currencies, ?Closure $closure = null): Generator {
         $connector = $this->getConnector();
 
-        yield $connector->asyncInsert(self::INSERT, [
+        yield from $connector->asyncInsert(self::INSERT, [
             "username" => $currencies->getUsername(),
             "currencies" => $currencies->toString()
         ]);

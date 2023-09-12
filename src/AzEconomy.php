@@ -9,7 +9,6 @@ use phuongaz\azeconomy\commands\BaseEconomyCommand;
 use phuongaz\azeconomy\currency\Currencies;
 use phuongaz\azeconomy\listener\EventHandler;
 use phuongaz\azeconomy\storage\BaseStorage;
-use phuongaz\azeconomy\storage\player\PlayersPool;
 use phuongaz\azeconomy\storage\SqliteStorage;
 use pocketmine\lang\Language;
 use pocketmine\plugin\PluginBase;
@@ -30,7 +29,6 @@ class AzEconomy extends PluginBase {
         $this->saveDefaultConfig();
         $this->initStorage();
         Currencies::init();
-        PlayersPool::init();
         $this->registerEventsAndCommands();
         $this->initLanguage();
     }
