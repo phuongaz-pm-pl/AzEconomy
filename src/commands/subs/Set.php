@@ -15,7 +15,7 @@ use phuongaz\azeconomy\EcoAPI;
 use phuongaz\azeconomy\listener\event\EconomyTransactionEvent;
 use phuongaz\azeconomy\storage\player\BaseCurrencies;
 use phuongaz\azeconomy\utils\Utils;
-use phuongaz\crate\utils\LanguageTrait;
+use phuongaz\azeconomy\trait\LanguageTrait;
 use pocketmine\command\CommandSender;
 use pocketmine\Server;
 
