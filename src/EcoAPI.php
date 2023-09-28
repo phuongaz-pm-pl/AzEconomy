@@ -15,7 +15,7 @@ final class EcoAPI {
 
     public static function getCurrency(string $username, string $currency, Closure $closure) :void {
         Utils::validateCallableSignature(function(float $amount) {}, $closure);
-        Await::f2c(function() use ($currency, $username) {
+        Await::f2c(function() use ($closure, $currency, $username) {
             $storage = AzEconomy::getInstance()->getStorage();
             yield $storage->awaitSelect($username, function(?BaseCurrencies $currencies) use ($currency, $closure) :void {
                 if(!is_null($currencies)) {

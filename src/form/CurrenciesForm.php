@@ -56,7 +56,7 @@ class CurrenciesForm {
             new MenuOption(self::__trans("currency.form.button.pay")),
         ];
         $text = self::__trans("currency.form.text", ["currency" => $currency, "amount" => $this->currencies->getCurrency($currency)]);
-        $selected = yield AsyncForm::menu($this->getPlayer(), $currency, $text, $options);
+        $selected = yield from AsyncForm::menu($this->getPlayer(), $currency, $text, $options);
         if($selected === null) {
             return yield $this->send();
         }
@@ -76,7 +76,7 @@ class CurrenciesForm {
                 $index++;
             }
             Await::f2c(function() use ($elements, $currency) {
-                $response = yield AsyncForm::custom($this->getPlayer(), self::__trans("currency.form.top.title", ["currency" => $currency]), $elements);
+                $response = yield from AsyncForm::custom($this->getPlayer(), self::__trans("currency.form.top.title", ["currency" => $currency]), $elements);
                 if(is_null($response)) {
                     yield $this->currencyForm($currency);
                 }
@@ -91,7 +91,7 @@ class CurrenciesForm {
             $labelContent .= "\n$text";
         }
         /** @var CustomFormResponse $response */
-        $response = yield AsyncForm::custom($this->getPlayer(), self::__trans("currency.form.pay.title", ["currency" => $currency]), [
+        $response = yield from AsyncForm::custom($this->getPlayer(), self::__trans("currency.form.pay.title", ["currency" => $currency]), [
             new Label("text", $labelContent),
             new Input("username", self::__trans("currency.form.pay.username")),
             new Input("amount", self::__trans("currency.form.pay.amount"))

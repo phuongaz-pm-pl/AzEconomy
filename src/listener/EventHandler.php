@@ -19,7 +19,7 @@ class EventHandler implements Listener{
         EcoAPI::getCurrencies($player->getName(), function(?BaseCurrencies $currencies) use ($player) {
             if(is_null($currencies)) {
                 $storage = AzEconomy::getInstance()->getStorage();
-                Await::f2c(fn() => yield $storage->registerCurrencies(BaseCurrencies::new($player->getName(), PlayerCurrencies::class)));
+                Await::g2c($storage->registerCurrencies(BaseCurrencies::new($player->getName(), PlayerCurrencies::class)));
             }
         });
     }

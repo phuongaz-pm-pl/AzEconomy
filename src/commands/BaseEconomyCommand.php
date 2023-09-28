@@ -30,9 +30,7 @@ class BaseEconomyCommand extends BaseCommand {
 
     public function onRun(CommandSender $sender, string $aliasUsed, array $args): void {
         if($sender instanceof Player) {
-            Await::f2c(function() use ($sender) {
-                yield (new CurrenciesForm($sender))->send();
-            });
+            Await::g2c((new CurrenciesForm($sender))->send());
         }
     }
 

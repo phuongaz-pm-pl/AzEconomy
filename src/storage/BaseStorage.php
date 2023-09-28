@@ -20,7 +20,7 @@ abstract class BaseStorage {
     public function __construct(
         private DataConnector $connector
     ) {
-        Await::f2c(fn() => yield $this->connector->asyncGeneric(self::INIT));
+        Await::g2c($this->connector->asyncGeneric(self::INIT));
     }
 
     public function getConnector(): DataConnector{

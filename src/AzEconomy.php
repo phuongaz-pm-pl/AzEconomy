@@ -79,5 +79,4 @@ class AzEconomy extends PluginBase {
     public function onDisable(): void {
         $this->getStorage()->getConnector()->waitAll();
     }
-
 }
